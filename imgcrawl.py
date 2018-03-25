@@ -2,8 +2,54 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import sys
 
 import constants
+
+
+class ImgCrawler:
+    """
+    Image crawler for batch downloading images given by a list of URLs read from a plaintext file.
+    """
+
+    def _download_images(self, url_file, destination_dir, log_file):
+        """
+        Internal implementation of the image downloading. Opens the URLs file and iterates over each URL.
+
+        :param url_file: file name or path to the file with URLs
+        :type url_file: str
+        :param destination_dir: path to directory in which to store the images
+        :type destination_dir: str
+        :param log_file: file name or path to the log file
+        :type log_file: str
+        :return:
+        """
+        # opening the url file and reading the urls
+        with open(url_file, 'r') as urls:
+            for line in urls:
+                pass
+
+    def download_images(self, url_file, destination_dir, log_file):
+        """
+        Downloads images from URLs given by the url_file, stores them into the directory destination_dir,
+        and logs the progress in the log_file.
+
+        :param url_file: file name or path to the file with URLs
+        :type url_file: str
+        :param destination_dir: path to directory in which to store the images
+        :type destination_dir: str
+        :param log_file: file name or path to the log file
+        :type log_file: str
+        :return:
+        """
+        try:
+            self._download_images(url_file, destination_dir, log_file)
+        except IOError as error:
+            sys.stderr.write(str(error))
+            sys.exit(error.errno)
+        except Exception as error:
+            sys.stderr.write('[Unknown error] %s' % str(error))
+            sys.exit(1)
 
 
 def make_parser():
@@ -46,4 +92,5 @@ def parse_arguments(argv=None, parser=None):
 
 
 if __name__ == '__main__':
-    parse_arguments()
+    arguments = parse_arguments()
+    ImgCrawler().download_images(arguments.url_file, arguments.destination_dir, arguments.log_file)
