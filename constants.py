@@ -6,4 +6,4 @@ DEFAULT_DESTINATION_DIR = os.getcwd()
 DEFAULT_LOG_FILE = 'imgcrawl.log'
 
 ROBOTS = 'robots.txt'
-USER_AGENT = 'imgcrawl'
+USER_AGENT = '*'
