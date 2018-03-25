@@ -24,6 +24,16 @@ class TestDownloadImages(unittest.TestCase):
 
         sys.stderr = old_stderr
 
+    def test_download_robots_permission(self):
+        # testing content download permission for page allowing robots
+        self.assertTrue(self.crawler.download_allowed('https://upload.wikimedia.org/wikipedia/commons/6/66/Guido_van_Rossum_OSCON_2006.jpg'))
+
+        # testing content download permission for page without robots.txt
+        self.assertTrue(self.crawler.download_allowed('http://www.miriamzilio.de/image/tigi/model_sfactor.jpg'))
+
+        # Google disallows crawling for their search page
+        self.assertFalse(self.crawler.download_allowed('http://www.google.de/search'))
+
 
 if __name__ == '__main__':
     unittest.main()

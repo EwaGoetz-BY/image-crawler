@@ -3,5 +3,7 @@
 import os
 
 DEFAULT_DESTINATION_DIR = os.getcwd()
-DEFAULT_LOG_FILE        = 'imgcrawl.log'
+DEFAULT_LOG_FILE = 'imgcrawl.log'
 
+ROBOTS = 'robots.txt'
+USER_AGENT = 'imgcrawl'

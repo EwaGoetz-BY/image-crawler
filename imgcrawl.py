@@ -3,6 +3,8 @@
 
 import argparse
 import sys
+import urllib.robotparser
+from urllib.parse import urlparse
 
 import constants
 
@@ -11,6 +13,8 @@ class ImgCrawler:
     """
     Image crawler for batch downloading images given by a list of URLs read from a plaintext file.
     """
+    def __init__(self):
+        self.robot = urllib.robotparser.RobotFileParser()
 
     def _download_images(self, url_file, destination_dir, log_file):
         """
@@ -27,6 +31,8 @@ class ImgCrawler:
         # opening the url file and reading the urls
         with open(url_file, 'r') as urls:
             for line in urls:
+                if not self.download_allowed(url):
+                    continue
                 pass
 
     def download_images(self, url_file, destination_dir, log_file):
@@ -51,6 +57,11 @@ class ImgCrawler:
             sys.stderr.write('[Unknown error] %s' % str(error))
             sys.exit(1)
 
+    def download_allowed(self, url):
+        components = urlparse(url)
+        self.robot.set_url('%s://%s/%s' % (components.scheme, components.netloc, constants.ROBOTS))
+        self.robot.read()
+        return self.robot.can_fetch(constants.USER_AGENT, url)
 
 def make_parser():
     """
@@ -92,5 +103,6 @@ def parse_arguments(argv=None, parser=None):
 
 
 if __name__ == '__main__':
-    arguments = parse_arguments()
-    ImgCrawler().download_images(arguments.url_file, arguments.destination_dir, arguments.log_file)
+    pass
+    # arguments = parse_arguments()
+    # ImgCrawler().download_images(arguments.url_file, arguments.destination_dir, arguments.log_file)
