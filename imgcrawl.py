@@ -14,6 +14,7 @@ class ImgCrawler:
     """
     Image crawler for batch downloading images given by a list of URLs read from a plaintext file.
     """
+
     def _download_images(self, url_file, destination_dir, log_file):
         """
         Internal implementation of the image downloading. Opens the URLs file and iterates over each URL.
@@ -56,10 +57,19 @@ class ImgCrawler:
             sys.exit(1)
 
     def download_allowed(self, url):
+        """
+        Checks the passed URL for crawling compliance with the robots.txt of the host
+
+        :param url: the URL to be checked for robots.txt crawling compliance
+        :type url: str
+        :return: a flag indicating whether the download is allowed
+        :rtype: bool
+        """
         try:
             components = urllib.parse.urlparse(url)
             robot = urllib.robotparser.RobotFileParser('%s://%s/%s' % (components.scheme, components.netloc, constants.ROBOTS))
             robot.read()
+
             return robot.can_fetch(constants.USER_AGENT, url)
 
         except (AttributeError, urllib.error.URLError, ValueError):
@@ -106,6 +116,5 @@ def parse_arguments(argv=None, parser=None):
 
 
 if __name__ == '__main__':
-    pass
-    # arguments = parse_arguments()
-    # ImgCrawler().download_images(arguments.url_file, arguments.destination_dir, arguments.log_file)
+    arguments = parse_arguments()
+    ImgCrawler().download_images(arguments.url_file, arguments.destination_dir, arguments.log_file)
