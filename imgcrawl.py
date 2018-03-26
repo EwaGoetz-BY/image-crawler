@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import logging
+import os.path
 import sys
 import urllib.error
 import urllib.parse
@@ -27,12 +29,16 @@ class ImgCrawler:
         :type log_file: str
         :return:
         """
+        logger = self.setup_log(log_file)
+        logger.info(constants.LOG_INITIAL_MESSAGE % (os.path.basename(url_file), destination_dir))
+
         # opening the url file and reading the urls
         with open(url_file, 'r') as urls:
-            for line in urls:
+            for url in urls:
+                # check whether the robots.txt allows us to crawl this URL
                 if not self.download_allowed(url):
+                    logger.error('robots.txt disallows download of %s' % url)
                     continue
-                pass
 
     def download_images(self, url_file, destination_dir, log_file):
         """
@@ -75,6 +81,35 @@ class ImgCrawler:
         except (AttributeError, urllib.error.URLError, ValueError):
             return False
 
+    def setup_log(self, log_file):
+        """
+        Creates a log object for protocolizing the image downloads.
+        The log file will be created unter the name and path given by the log_file argument.
+
+        :param log_file: file name or path to the log file
+        :type log_file: str
+        :return: logger object enabling writing log entries
+        :rtype: logging.Logger
+        """
+        directory = os.path.dirname(log_file)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+
+        logger = logging.getLogger(log_file)
+        formatter = logging.Formatter(constants.LOG_FORMAT)
+
+        file_handler = logging.FileHandler(log_file, mode='a')
+        file_handler.setFormatter(formatter)
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+
+        logger.setLevel(logging.INFO)
+        logger.addHandler(file_handler)
+        logger.addHandler(stream_handler)
+        
+        return logger
+
 
 def make_parser():
     """
@@ -108,7 +143,6 @@ def parse_arguments(argv=None, parser=None):
     :return: a key-value object populated with the given arguments and/or default values
     :rtype: argparse.Namespace
     """
-
     if parser is None:
         parser = make_parser()
 
