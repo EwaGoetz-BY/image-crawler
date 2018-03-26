@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import errno
 import unittest
 import sys
 
@@ -55,29 +56,29 @@ class TestParseArguments(unittest.TestCase):
 
     def test_parse_arguments_help(self):
         # testing help
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as context:
             imgcrawl.parse_arguments(['-h'], self.parser)
-            self.assertEqual(exit.code, 0)
+        self.assertEqual(context.exception.code, 0)
 
     def test_parse_arguments_invalid_input(self):
         # testing with no arguments
-        with self.assertRaises(SystemExit) as exit:
+        with self.assertRaises(SystemExit) as context:
             imgcrawl.parse_arguments([], self.parser)
-            self.assertEqual(exit.code, 2)
+        self.assertEqual(context.exception.code, errno.ENOENT)
 
         # testing with download directory and log file, but no url file given.
-        with self.assertRaises(SystemExit) as exit:
+        with self.assertRaises(SystemExit) as context:
             imgcrawl.parse_arguments(['-d', self.DOWNLOAD_DIR, '-l', self.LOG_FILE], self.parser)
-            self.assertEqual(exit.code, 2)
+        self.assertEqual(context.exception.code, errno.ENOENT)
 
         # testing with wrong argument type
         with self.assertRaises(TypeError):
             imgcrawl.parse_arguments([self.URL_FILE, '-d', 404], self.parser)
 
         # testing faulty non-list argument
-        with self.assertRaises(SystemExit) as exit:
+        with self.assertRaises(SystemExit) as context:
             imgcrawl.parse_arguments(self.URL_FILE, self.parser)
-            self.assertEqual(exit.code, 2)
+        self.assertEqual(context.exception.code, errno.ENOENT)
 
 
 if __name__ == '__main__':
