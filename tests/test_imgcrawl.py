@@ -92,7 +92,7 @@ class TestDownloadImages(unittest.TestCase):
 
     def test_logger_shutdown(self):
         # logger setup with default arguments
-        logger = self.crawler.setup_log('shutdown.log')
+        logger = self.crawler.setup_log(self.log_file)
         self.assertTrue(logger.handlers)
         self.crawler.shutdown_log(logger)
         self.assertFalse(logger.handlers)
