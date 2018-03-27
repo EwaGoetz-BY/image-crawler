@@ -12,4 +12,4 @@ USER_AGENT = '*'
 
 # logging
 LOG_FORMAT = '%(asctime)s %(message)s'
-LOG_INITIAL_MESSAGE = 'Downloading images from URLs listed in file "%s" into directory "%s".'
+LOG_INITIAL_MESSAGE = 'downloading images from URLs listed in file "%s" into directory "%s".'

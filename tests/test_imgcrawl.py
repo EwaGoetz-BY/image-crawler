@@ -7,6 +7,8 @@ import os
 import os.path
 import sys
 import unittest
+import urllib.error
+import urllib.parse
 
 import imgcrawl
 
@@ -33,22 +35,42 @@ class TestDownloadImages(unittest.TestCase):
 
     def test_robots_txt_permission_checking(self):
         # testing content download permission for page allowing robots
-        self.assertTrue(self.crawler.download_allowed('https://upload.wikimedia.org/wikipedia/commons/6/66/Guido_van_Rossum_OSCON_2006.jpg'))
+        url = 'https://upload.wikimedia.org/wikipedia/commons/6/66/Guido_van_Rossum_OSCON_2006.jpg'
+        components = urllib.parse.urlparse(url)
+        self.assertTrue(self.crawler.download_allowed(url, components.scheme, components.netloc))
 
         # testing content download permission for page without robots.txt
-        self.assertTrue(self.crawler.download_allowed('http://www.miriamzilio.de/image/tigi/model_sfactor.jpg'))
+        url = 'http://www.miriamzilio.de/image/tigi/model_sfactor.jpg'
+        components = urllib.parse.urlparse(url)
+        self.assertTrue(self.crawler.download_allowed(url, components.scheme, components.netloc))
 
         # Google disallows crawling for their search page
-        self.assertFalse(self.crawler.download_allowed('https://www.google.de/'))
+        url = 'https://www.google.de/'
+        components = urllib.parse.urlparse(url)
+        self.assertFalse(self.crawler.download_allowed(url, components.scheme, components.netloc))
+
+        # URL missing
+        self.assertTrue(self.crawler.download_allowed('', 'https', 'upload.wikimedia.org'))
+
+        # scheme missing
+        url = 'https://upload.wikimedia.org/wikipedia/commons/6/66/Guido_van_Rossum_OSCON_2006.jpg'
+        components = urllib.parse.urlparse(url)
+        with self.assertRaises(urllib.error.URLError) as context:
+            self.assertTrue(self.crawler.download_allowed(url, '', components.netloc))
+
+        # netloc missing
+        with self.assertRaises(urllib.error.URLError) as context:
+            self.assertTrue(self.crawler.download_allowed(url, components.scheme, ''))
 
         # wrong type for crawler download
-        self.assertFalse(self.crawler.download_allowed(1))
+        with self.assertRaises(TypeError) as context:
+            self.crawler.download_allowed(1, 'https', 'www.google.de')
 
-        # wrong type for crawler download
-        self.assertFalse(self.crawler.download_allowed(''))
-
-        # URL invalid
-        self.assertFalse(self.crawler.download_allowed('http://foofoofoofoofoo.de'))
+        # URL does not exist
+        url = 'http://foofoofoofoofoo.de/logo.svg'
+        components = urllib.parse.urlparse(url)
+        with self.assertRaises(urllib.error.URLError) as context:
+            self.crawler.download_allowed(url, components.scheme, components.netloc)
 
     def test_logger_setup(self):
         # logger setup with default arguments

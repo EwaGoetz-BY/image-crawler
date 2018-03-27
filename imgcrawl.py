@@ -30,14 +30,23 @@ class ImgCrawler:
         :return:
         """
         logger = self.setup_log(log_file)
-        logger.info(constants.LOG_INITIAL_MESSAGE % (os.path.basename(url_file), destination_dir))
+        logger.info(constants.LOG_INITIAL_MESSAGE % (url_file, destination_dir))
+
+        download_count = 1
 
         # opening the url file and reading the urls
         with open(url_file, 'r') as urls:
             for url in urls:
                 # check whether the robots.txt allows us to crawl this URL
-                if not self.download_allowed(url):
-                    logger.error('robots.txt disallows download of %s' % url)
+                try:
+                    can_fetch = self.download_allowed(url, components.scheme, components.netloc, logger)
+                except (AttributeError, urllib.error.URLError, ValueError):
+                    logger.error('unable to access URL: %s' % url)
+                    continue
+
+                # log that image download is disallowed
+                if not can_fetch:
+                    logger.error('download disallowed by robots.txt: %s' % url)
                     continue
 
     def download_images(self, url_file, destination_dir, log_file):
@@ -62,25 +71,28 @@ class ImgCrawler:
             sys.stderr.write('[Unknown error] %s' % str(error))
             sys.exit(1)
 
-    def download_allowed(self, url):
+    def download_allowed(self, url, scheme, netloc):
         """
         Checks the passed URL for crawling compliance with the robots.txt of the host
 
         :param url: the URL to be checked for robots.txt crawling compliance
         :type url: str
+        :param scheme: the URL scheme
+        :type scheme: str
+        :param netloc: the URL netloc
+        :type netloc: str
         :return: a flag indicating whether the download is allowed
         :rtype: bool
         """
+        robot = urllib.robotparser.RobotFileParser('%s://%s/%s' % (scheme, netloc, constants.ROBOTS))
         try:
-            components = urllib.parse.urlparse(url)
-            robot = urllib.robotparser.RobotFileParser('%s://%s/%s' % (components.scheme, components.netloc, constants.ROBOTS))
             robot.read()
+        except ValueError:
+            raise urllib.error.URLError('<urlopen error no protocol given>')
 
-            return robot.can_fetch(constants.USER_AGENT, url)
+        return robot.can_fetch(constants.USER_AGENT, url)
 
-        except (AttributeError, urllib.error.URLError, ValueError):
-            return False
-
+        
     def setup_log(self, log_file):
         """
         Creates a log object for protocolizing the image downloads.
@@ -101,13 +113,13 @@ class ImgCrawler:
         file_handler = logging.FileHandler(log_file, mode='a')
         file_handler.setFormatter(formatter)
 
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
+        # stream_handler = logging.StreamHandler()
+        # stream_handler.setFormatter(formatter)
 
         logger.setLevel(logging.INFO)
         logger.addHandler(file_handler)
-        logger.addHandler(stream_handler)
-        
+        # logger.addHandler(stream_handler)
+
         return logger
 
 
