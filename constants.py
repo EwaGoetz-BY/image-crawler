@@ -6,6 +6,9 @@ import os
 DEFAULT_DESTINATION_DIR = os.getcwd()
 DEFAULT_LOG_FILE = 'imgcrawl.log'
 
+# URL requests
+IMAGE_MIMETYPE = 'image'
+
 # robots.txt
 ROBOTS = 'robots.txt'
 USER_AGENT = '*'

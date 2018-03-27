@@ -8,6 +8,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.robotparser
+import urllib.request
 
 import constants
 
@@ -55,6 +56,31 @@ class ImgCrawler:
                 if not can_fetch:
                     logger.error('download disallowed by robots.txt: %s' % url)
                     continue
+                
+                # open image url
+                try:
+                    url_response = urllib.request.urlopen(url)
+                except urllib.error.URLError as error:
+                    logger.error('failed to open image URL: %s' % url)
+                    continue
+
+                # check whether the URL content is an image 
+                if url_response.info().get_content_maintype().lower() != constants.IMAGE_MIMETYPE:
+                    logger.error('url content is not an image %s' % url)
+                    continue
+                
+                # retreive the content and store in the destination directory 
+                image_name = '%s_%s' % (download_count, os.path.basename(url))
+                try:
+                    with open(os.path.join(destination_dir, image_name), 'wb') as image_file:
+                        image_file.write(url_response.read())
+                except:
+                    logger.error('unable to download the image %s' % url)
+                    continue
+                
+                # log download and increment the counter
+                logger.info('image downloaded to file: %s, url: %s' % (image_name, url))
+                download_count += 1
 
         # release the logger handles
         self.shutdown_log(logger)
