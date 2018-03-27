@@ -56,6 +56,9 @@ class ImgCrawler:
                     logger.error('download disallowed by robots.txt: %s' % url)
                     continue
 
+        # release the logger handles
+        self.shutdown_log(logger)
+
     def download_images(self, url_file, destination_dir, log_file):
         """
         Downloads images from URLs given by the url_file, stores them into the directory destination_dir,
@@ -120,14 +123,22 @@ class ImgCrawler:
         file_handler = logging.FileHandler(log_file, mode='a')
         file_handler.setFormatter(formatter)
 
-        # stream_handler = logging.StreamHandler()
-        # stream_handler.setFormatter(formatter)
-
         logger.setLevel(logging.INFO)
         logger.addHandler(file_handler)
-        # logger.addHandler(stream_handler)
 
         return logger
+
+    def shutdown_log(self, logger):
+        """
+        Releases the log file handle(s) for a given logger
+        
+        :param logger: logger object with resource handles
+        :type logger: logging.Logger
+        :return:
+        """
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+            handler.close()
 
 
 def make_parser():

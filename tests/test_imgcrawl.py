@@ -90,6 +90,13 @@ class TestDownloadImages(unittest.TestCase):
             self.crawler.setup_log(os.curdir)
         self.assertEqual(context.exception.errno, errno.EISDIR)
 
+    def test_logger_shutdown(self):
+        # logger setup with default arguments
+        logger = self.crawler.setup_log('shutdown.log')
+        self.assertTrue(logger.handlers)
+        self.crawler.shutdown_log(logger)
+        self.assertFalse(logger.handlers)
+
     def tearDown(self):
         if os.path.exists(self.download_dir):
             os.rmdir(self.download_dir)
