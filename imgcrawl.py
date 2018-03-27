@@ -37,6 +37,13 @@ class ImgCrawler:
         # opening the url file and reading the urls
         with open(url_file, 'r') as urls:
             for url in urls:
+
+                url = url.strip()
+                components = urllib.parse.urlparse(url)
+                if not (components.scheme and components.netloc and components.path):
+                    logger.error('url string invalid: "%s"' % url)
+                    continue
+            
                 # check whether the robots.txt allows us to crawl this URL
                 try:
                     can_fetch = self.download_allowed(url, components.scheme, components.netloc, logger)
