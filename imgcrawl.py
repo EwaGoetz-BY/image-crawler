@@ -33,7 +33,7 @@ class ImgCrawler:
         logger = self.setup_log(log_file)
         logger.info(constants.LOG_INITIAL_MESSAGE % (url_file, destination_dir))
 
-        download_count = 1
+        download_count = 0
 
         # opening the url file and reading the urls
         with open(url_file, 'r') as urls:
@@ -47,7 +47,7 @@ class ImgCrawler:
             
                 # check whether the robots.txt allows us to crawl this URL
                 try:
-                    can_fetch = self.download_allowed(url, components.scheme, components.netloc, logger)
+                    can_fetch = self.download_allowed(url, components.scheme, components.netloc)
                 except (AttributeError, urllib.error.URLError, ValueError):
                     logger.error('unable to access URL: %s' % url)
                     continue
@@ -66,17 +66,18 @@ class ImgCrawler:
 
                 # check whether the URL content is an image 
                 if url_response.info().get_content_maintype().lower() != constants.IMAGE_MIMETYPE:
-                    logger.error('url content is not an image %s' % url)
+                    logger.error('url content is not an image: %s' % url)
                     continue
                 
-                # retreive the content and store in the destination directory 
-                image_name = '%s_%s' % (download_count, os.path.basename(url))
-                try:
-                    with open(os.path.join(destination_dir, image_name), 'wb') as image_file:
+                # retrieve the content and store in the destination directory
+                os.makedirs(destination_dir, exist_ok=True) 
+                image_name = '%s_%s' % (download_count + 1, os.path.basename(url))
+                with open(os.path.join(destination_dir, image_name), 'wb') as image_file:
+                    try:
                         image_file.write(url_response.read())
-                except:
-                    logger.error('unable to download the image %s' % url)
-                    continue
+                    except urllib.error.URLError as error:
+                        logger.error('unable to download the image: %s' % url)
+                        continue
                 
                 # log download and increment the counter
                 logger.info('image downloaded to file: %s, url: %s' % (image_name, url))
