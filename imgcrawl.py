@@ -10,7 +10,7 @@ import urllib.parse
 import urllib.robotparser
 import urllib.request
 
-import constants
+import config
 
 
 class ImgCrawler:
@@ -31,7 +31,7 @@ class ImgCrawler:
         :return:
         """
         logger = self.setup_log(log_file)
-        logger.info(constants.LOG_INITIAL_MESSAGE % (url_file, destination_dir))
+        logger.info(config.LOG_INITIAL_MESSAGE % (url_file, destination_dir))
 
         download_count = 0
 
@@ -42,31 +42,31 @@ class ImgCrawler:
                 url = url.strip()
                 components = urllib.parse.urlparse(url)
                 if not (components.scheme and components.netloc and components.path):
-                    logger.error('url string invalid: "%s"' % url)
+                    logger.error('%s: "%s"' % (config.LOG_URL_INVALID, url))
                     continue
             
                 # check whether the robots.txt allows us to crawl this URL
                 try:
                     can_fetch = self.download_allowed(url, components.scheme, components.netloc)
                 except (AttributeError, urllib.error.URLError, ValueError):
-                    logger.error('unable to access URL: %s' % url)
+                    logger.error('%s: %s' % (config.LOG_ERROR_ROBOTS, url))
                     continue
 
                 # log that image download is disallowed
                 if not can_fetch:
-                    logger.error('download disallowed by robots.txt: %s' % url)
+                    logger.error('%s: %s' % (config.LOG_DISALLOWED, url))
                     continue
                 
                 # open image url
                 try:
                     url_response = urllib.request.urlopen(url)
                 except urllib.error.URLError as error:
-                    logger.error('failed to open image URL: %s' % url)
+                    logger.error('%s: %s' % (config.LOG_ERROR_OPENING, url))
                     continue
 
                 # check whether the URL content is an image 
-                if url_response.info().get_content_maintype().lower() != constants.IMAGE_MIMETYPE:
-                    logger.error('url content is not an image: %s' % url)
+                if url_response.info().get_content_maintype().lower() != config.IMAGE_MIMETYPE:
+                    logger.error('%s: %s' % (config.LOG_NOT_AN_IMAGE, url))
                     continue
                 
                 # retrieve the content and store in the destination directory
@@ -76,11 +76,11 @@ class ImgCrawler:
                     try:
                         image_file.write(url_response.read())
                     except urllib.error.URLError as error:
-                        logger.error('unable to download the image: %s' % url)
+                        logger.error('%s: %s' % (config.LOG_ERROR_DOWNLOADING, url))
                         continue
                 
                 # log download and increment the counter
-                logger.info('image downloaded to file: %s, url: %s' % (image_name, url))
+                logger.info('%s: %s, url: %s' % (config.LOG_DOWNLOADED, image_name, url))
                 download_count += 1
 
         # release the logger handles
@@ -121,13 +121,13 @@ class ImgCrawler:
         :return: a flag indicating whether the download is allowed
         :rtype: bool
         """
-        robot = urllib.robotparser.RobotFileParser('%s://%s/%s' % (scheme, netloc, constants.ROBOTS))
+        robot = urllib.robotparser.RobotFileParser('%s://%s/%s' % (scheme, netloc, config.ROBOTS))
         try:
             robot.read()
         except ValueError:
             raise urllib.error.URLError('<urlopen error no protocol given>')
 
-        return robot.can_fetch(constants.USER_AGENT, url)
+        return robot.can_fetch(config.USER_AGENT, url)
 
         
     def setup_log(self, log_file):
@@ -145,7 +145,7 @@ class ImgCrawler:
             os.makedirs(directory, exist_ok=True)
 
         logger = logging.getLogger(log_file)
-        formatter = logging.Formatter(constants.LOG_FORMAT)
+        formatter = logging.Formatter(config.LOG_FORMAT)
 
         file_handler = logging.FileHandler(log_file, mode='a')
         file_handler.setFormatter(formatter)
@@ -177,13 +177,13 @@ def make_parser():
     :return: a parser object
     :rtype: argparse.ArgumentParser
     """
-    parser = argparse.ArgumentParser(description='Download images from URL list in a file.')
+    parser = argparse.ArgumentParser(description=config.DESCRIPTION)
     parser.add_argument('url_file', metavar='URL_FILE', type=str,
-                        help='plaintext file containing URLs of images to download')
-    parser.add_argument('-d', metavar='DEST_DIR', dest='destination_dir', default=constants.DEFAULT_DESTINATION_DIR, type=str,
-                        help='specify alternative destination directory (default: current working directory)')
-    parser.add_argument('-l', metavar='LOG_FILE', dest='log_file', default=constants.DEFAULT_LOG_FILE, type=str,
-                        help='specify alternative log file (default: %s)' % constants.DEFAULT_LOG_FILE)
+                        help=config.HELP_URL_FILE)
+    parser.add_argument('-d', metavar='DEST_DIR', dest='destination_dir', default=config.DEFAULT_DESTINATION_DIR, type=str,
+                        help=config.HELP_DESTINATION_DIR)
+    parser.add_argument('-l', metavar='LOG_FILE', dest='log_file', default=config.DEFAULT_LOG_FILE, type=str,
+                        help=config.HELP_LOG_FILE % config.DEFAULT_LOG_FILE)
 
     return parser
 
