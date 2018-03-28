@@ -42,31 +42,31 @@ class ImgCrawler:
                 url = url.strip()
                 components = urllib.parse.urlparse(url)
                 if not (components.scheme and components.netloc and components.path):
-                    logger.error('%s: "%s"' % (config.LOG_URL_INVALID, url))
+                    logger.error('%s: "%s"' % (config.LOG_URL_INVALID, self.truncate_middle(url, config.MAX_URL)))
                     continue
             
                 # check whether the robots.txt allows us to crawl this URL
                 try:
                     can_fetch = self.download_allowed(url, components.scheme, components.netloc)
                 except (AttributeError, urllib.error.URLError, ValueError):
-                    logger.error('%s: %s' % (config.LOG_ERROR_ROBOTS, url))
+                    logger.error('%s: %s' % (config.LOG_ERROR_ROBOTS, self.truncate_middle(url, config.MAX_URL)))
                     continue
 
                 # log that image download is disallowed
                 if not can_fetch:
-                    logger.error('%s: %s' % (config.LOG_DISALLOWED, url))
+                    logger.error('%s: %s' % (config.LOG_DISALLOWED, self.truncate_middle(url, config.MAX_URL)))
                     continue
                 
                 # open image url
                 try:
                     url_response = urllib.request.urlopen(url)
                 except urllib.error.URLError as error:
-                    logger.error('%s: %s' % (config.LOG_ERROR_OPENING, url))
+                    logger.error('%s: %s' % (config.LOG_ERROR_OPENING, self.truncate_middle(url, config.MAX_URL)))
                     continue
 
                 # check whether the URL content is an image 
                 if url_response.info().get_content_maintype().lower() != config.IMAGE_MIMETYPE:
-                    logger.error('%s: %s' % (config.LOG_NOT_AN_IMAGE, url))
+                    logger.error('%s: %s' % (config.LOG_NOT_AN_IMAGE, self.truncate_middle(url, config.MAX_URL)))
                     continue
                 
                 # retrieve the content and store in the destination directory
@@ -76,11 +76,11 @@ class ImgCrawler:
                     try:
                         image_file.write(url_response.read())
                     except urllib.error.URLError as error:
-                        logger.error('%s: %s' % (config.LOG_ERROR_DOWNLOADING, url))
+                        logger.error('%s: %s' % (config.LOG_ERROR_DOWNLOADING, self.truncate_middle(url, config.MAX_URL)))
                         continue
                 
                 # log download and increment the counter
-                logger.info('%s: %s, url: %s' % (config.LOG_DOWNLOADED, image_name, url))
+                logger.info('%s %s, url: %s' % (config.LOG_DOWNLOADED, self.truncate_middle(image_name, config.MAX_FILE_NAME), self.truncate_middle(url, config.MAX_URL)))
                 download_count += 1
 
         # release the logger handles
@@ -166,6 +166,13 @@ class ImgCrawler:
         for handler in logger.handlers[:]:
             logger.removeHandler(handler)
             handler.close()
+
+    def truncate_middle(self, string, limit):
+        if len(string) <= limit:
+            return string
+        right = limit // 2 - 2
+        left = limit - right - 3
+        return '%s...%s' % (string[:left], string[-right:])
 
 
 def make_parser():

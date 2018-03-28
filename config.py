@@ -28,4 +28,9 @@ LOG_DISALLOWED = 'download disallowed by robots.txt'
 LOG_ERROR_OPENING = 'failed to open image URL'
 LOG_NOT_AN_IMAGE = 'url content is not an image'
 LOG_ERROR_DOWNLOADING = 'unable to download the image'
-LOG_DOWNLOADED = 'image downloaded to file'
+LOG_DOWNLOADED = 'downloaded'
+
+# appearance
+MAX_URL = 40
+MAX_FILE_NAME = 15
+PROGRESS_BAR_WIDTH = 30
