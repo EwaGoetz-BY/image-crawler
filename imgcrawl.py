@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import argparse
 import logging
 import os.path
 import sys
@@ -10,7 +9,9 @@ import urllib.parse
 import urllib.robotparser
 import urllib.request
 
+import argparse
 import config
+import progressbar
 
 
 class ImgCrawler:
@@ -33,11 +34,17 @@ class ImgCrawler:
         logger = self.setup_log(log_file)
         logger.info(config.LOG_INITIAL_MESSAGE % (url_file, destination_dir))
 
+        with open(url_file) as urls:
+            for i, l in enumerate(urls):
+                pass
+        bar = progressbar.ProgressBar(i + 1)
+
         download_count = 0
 
         # opening the url file and reading the urls
         with open(url_file, 'r') as urls:
-            for url in urls:
+            for i, url in enumerate(urls):
+                bar.set(i)
 
                 url = url.strip()
                 components = urllib.parse.urlparse(url)
@@ -82,6 +89,9 @@ class ImgCrawler:
                 # log download and increment the counter
                 logger.info('%s %s, url: %s' % (config.LOG_DOWNLOADED, self.truncate_middle(image_name, config.MAX_FILE_NAME), self.truncate_middle(url, config.MAX_URL)))
                 download_count += 1
+
+        # set the progress bar to 100 percent and print a comment and new line for the returning prompt
+        bar.complete('completed')
 
         # release the logger handles
         self.shutdown_log(logger)
