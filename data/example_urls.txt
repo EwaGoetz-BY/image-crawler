@@ -2,4 +2,3 @@ https://upload.wikimedia.org/wikipedia/commons/f/f8/Python_logo_and_wordmark.svg
 https://upload.wikimedia.org/wikipedia/commons/6/66/Guido_van_Rossum_OSCON_2006.jpg
 https://www.python.org/
 foo:bar
-

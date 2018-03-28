@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import errno
 import unittest
 import sys
 
-import constants
+import config
 import imgcrawl
 
 
@@ -35,8 +36,8 @@ class TestParseArguments(unittest.TestCase):
 
         self.assertEqual(len(vars(arguments)), self.ARGUMENT_COUNT)
         self.assertEqual(arguments.url_file, self.URL_FILE)
-        self.assertEqual(arguments.destination_dir, constants.DEFAULT_DESTINATION_DIR)
-        self.assertEqual(arguments.log_file, constants.DEFAULT_LOG_FILE)
+        self.assertEqual(arguments.destination_dir, config.DEFAULT_DESTINATION_DIR)
+        self.assertEqual(arguments.log_file, config.DEFAULT_LOG_FILE)
 
         # testing with url file and download directory given, log file default
         arguments = imgcrawl.parse_arguments([self.URL_FILE, '-d', self.DOWNLOAD_DIR])
@@ -44,7 +45,7 @@ class TestParseArguments(unittest.TestCase):
         self.assertEqual(len(vars(arguments)), self.ARGUMENT_COUNT)
         self.assertEqual(arguments.url_file, self.URL_FILE)
         self.assertEqual(arguments.destination_dir, self.DOWNLOAD_DIR)
-        self.assertEqual(arguments.log_file, constants.DEFAULT_LOG_FILE)
+        self.assertEqual(arguments.log_file, config.DEFAULT_LOG_FILE)
 
         # testing all arguments given, different order
         arguments = imgcrawl.parse_arguments(['-d', self.DOWNLOAD_DIR, self.URL_FILE, '-l', self.LOG_FILE])

@@ -4,7 +4,7 @@ import os
 
 # default paths
 DEFAULT_DESTINATION_DIR = os.getcwd()
-DEFAULT_LOG_FILE = 'imgcrawl.log'
+DEFAULT_LOG_FILE = 'crawling.log'
 
 # command arguments help
 DESCRIPTION = 'Download images from URL list in a file.'

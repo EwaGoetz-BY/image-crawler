@@ -1,12 +1,12 @@
 Image Crawler
 =============
 
-This small Python application downloads images given by a list of URLs in a text file.
+This small Python application downloads images from a set of URLs listed in a text file.
 
 Usage
 -----
 
-``./imgcrawl.py <URL_FILE> [-d <DESTINATION_PATH>] [-l <LOG_FILE_PATH>]``
+``./imgcrawl.py [-h] URL_FILE [-d DESTINATION_PATH] [-l LOG_FILE_PATH]``
 
 The `URL_FILE` parameter specifies the plaintext file containing URLs of images to download, written one per line, e.g.:
 

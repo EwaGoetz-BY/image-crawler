@@ -64,21 +64,21 @@ class TestDownloadImages(unittest.TestCase):
         # scheme missing
         url = 'https://upload.wikimedia.org/wikipedia/commons/6/66/Guido_van_Rossum_OSCON_2006.jpg'
         components = urllib.parse.urlparse(url)
-        with self.assertRaises(urllib.error.URLError) as context:
+        with self.assertRaises(urllib.error.URLError):
             self.assertTrue(self.crawler.download_allowed(url, '', components.netloc))
 
         # netloc missing
-        with self.assertRaises(urllib.error.URLError) as context:
+        with self.assertRaises(urllib.error.URLError):
             self.assertTrue(self.crawler.download_allowed(url, components.scheme, ''))
 
         # wrong type for crawler download
-        with self.assertRaises(TypeError) as context:
+        with self.assertRaises(TypeError):
             self.crawler.download_allowed(1, 'https', 'www.google.de')
 
         # URL does not exist
         url = 'http://foofoofoofoofoo.de/logo.svg'
         components = urllib.parse.urlparse(url)
-        with self.assertRaises(urllib.error.URLError) as context:
+        with self.assertRaises(urllib.error.URLError):
             self.crawler.download_allowed(url, components.scheme, components.netloc)
 
     def test_logger_setup(self):
