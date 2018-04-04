@@ -10,7 +10,7 @@ class ProgressBar:
     """
     def __init__(self, max_value, width=30):
         """
-        Progress bar constructor. Sets stasting value for the progress bar and displays the initial empty bar.
+        Progress bar constructor. Sets starting value for the progress bar and displays the initial empty bar.
 
         :param max_value: maximal (numerical) value at which the bar will reach 100 percent completion
         :type max_value: int, float
@@ -30,7 +30,7 @@ class ProgressBar:
     def set(self, value=1.0):
         """
         Updates the printed progress bar and counters by returning the carriage to the beginning of the line 
-        and printing new progress value representation over it (in porces again presuming counting from 0 to max)
+        and printing new progress value representation over it (in process again presuming counting from 0 to max)
 
         :param value: optional value by which to increase the current value, defaults to 1.0
         :type value: int, float
@@ -54,7 +54,7 @@ class ProgressBar:
         """
         Sets the progress to 100 percent and a comment upon completion
 
-        :param text: optional comment or message ot be printed, defaults to "completed"
+        :param text: optional comment or message to be printed, defaults to "completed"
         :type text: str, any printable
         :return:
         """
