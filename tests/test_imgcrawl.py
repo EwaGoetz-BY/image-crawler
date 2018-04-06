@@ -11,9 +11,16 @@ import urllib.error
 import urllib.parse
 
 import imgcrawl
+import config
 
 
 class TestDownloadImages(unittest.TestCase):
+    """
+    Image download funcionality testing: 
+    * Methods are tested individually with representative input.
+    * For the sake of demonstration the collective download method is tested with real resolvable URLs.
+      In a productive system one would use a mock server/own web server.
+    """
     def setUp(self):
         self.crawler = imgcrawl.ImgCrawler()
         self.download_dir = os.path.join(os.curdir, 'test_download_dir/')
@@ -107,6 +114,10 @@ class TestDownloadImages(unittest.TestCase):
         self.assertFalse(logger.handlers)
 
     def test_image_download(self):
+        # suppressing printing of the progress bar
+        self.output = io.StringIO()
+        self.old_stdout, sys.stdout = sys.stdout, self.output
+        
         # image download test with an example url file
         #     writing the URL file
         with open(self.url_file, 'w') as urls:
@@ -114,6 +125,8 @@ class TestDownloadImages(unittest.TestCase):
 
         #     crawling using the set up arguments
         self.crawler.download_images(self.url_file, self.download_dir, self.log_file)
+
+        self.assertTrue(self.output.getvalue().endswith(' %s\n' % config.PROGRESS_COMPLETE))
 
         #     testing consistency between urls count and log file length
         with open(self.log_file) as log:
@@ -130,6 +143,9 @@ class TestDownloadImages(unittest.TestCase):
         os.rmdir(self.download_dir)
         os.remove(self.log_file)
         os.remove(self.url_file)
+
+        # reinstating the previous stdout
+        sys.stdout = self.old_stdout
         
     def tearDown(self):
         if os.path.exists(self.download_dir):

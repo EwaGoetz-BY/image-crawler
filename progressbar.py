@@ -4,6 +4,8 @@
 import math
 import time
 
+import config
+
 class ProgressBar:
     """
     Displays progress bar, current value, and percentage (presuming count from 0 to max_value).
@@ -50,7 +52,7 @@ class ProgressBar:
         print(output, end='', flush=True)
         self.printed_characters = len(output)
 
-    def complete(self, text='completed'):
+    def complete(self, text=config.PROGRESS_COMPLETE):
         """
         Sets the progress to 100 percent and a comment upon completion
 
